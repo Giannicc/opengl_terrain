@@ -1,4 +1,6 @@
 #include <vector>
+#include <cstdlib>
+#include <time.h>
 using namespace std;
 class RGB {
 public:
@@ -58,9 +60,12 @@ public:
 class FractalTerrain :Terrain {
 public:
 	FractalTerrain(int lod, double roughness);
-	vector<vector<double>> terrainMap;
+	~FractalTerrain();
+	double **terrain;
 private:
+	void diamond(int x, int y, int side, double scale);
+	void square(int x, int y, int side, double scale);
+
 	double roughness, min, max;
 	int divisions;
-	//Random rng;
 };
