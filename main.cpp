@@ -6,9 +6,9 @@
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #elif __linux__
-/*
-	HEEEEeeeeey Phillip do your includes heeeeeeere
-*/
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
 #endif
 using namespace std;
 
