@@ -13,11 +13,12 @@
 
 FractalTerrain *terrain;
 Triangle *triangles;
+double exaggeration = .7;
+int lod = 5;
+int steps = 1 << lod;
+int numTriangles = (steps * steps * 2);
 
 void terrainGen() {
-	double exaggeration = .7;
-	int lod = 5;
-	int steps = 1 << lod;
 	Triple **map = new Triple*[steps + 1];
 	for (int i = 0; i < steps + 1; i++) {
 		map[i] = new Triple[steps + 1];
@@ -72,7 +73,7 @@ void terrainGen() {
 	/*
 	Creating array of Triangles
 	*/
-	int numTriangles = (steps * steps * 2);
+
 	triangles = new Triangle[numTriangles];
 
 	int triangle = 0;
@@ -120,6 +121,21 @@ void terrainGen() {
 	}
 }
 
+void drawTerrain() {
+	for (int i = 0; i < numTriangles; i++) {
+		glBegin(GL_TRIANGLES);
+		for (int t = 0; t < 3; t++) {
+			double x, y, z;
+			x = triangles[i].i[t];
+			z = triangles[i].j[t];
+			y = (*terrain).getAltitude(x, z);
+			glColor3f(triangles[i].color.r, triangles[i].color.g, triangles[i].color.b);
+			glVertex3f(x, y, z);
+		}
+		glEnd();
+	}
+}
+
 void display() {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -127,8 +143,9 @@ void display() {
 	glLoadIdentity();
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, -5.0f);
-	glColor3ub(255, 0, 0);
-	glutSolidTeapot(1.0);
+	//glColor3ub(255, 0, 0);
+	//glutSolidTeapot(1.0);
+	drawTerrain();
 	glPopMatrix();
 	glutSwapBuffers();
 }
@@ -162,6 +179,7 @@ void callbacks() {
 	glutKeyboardFunc(keyboard);
 	glEnable(GL_DEPTH_TEST);
 	//Now enable some lighting stuff...
+	terrainGen();
 }
 
 
