@@ -6,7 +6,7 @@ using namespace std;
 class RGB {
 public:
 	RGB() {
-		r = g = b = 0;
+		//r = g = b = 0;
 	}
 	RGB(double _r, double _g, double _b) {
 		r = _r;
@@ -79,9 +79,12 @@ private:
 	double roughness, min, max;
 	int divisions;
 };
-/*
+
 class Triangle {
 public:
+	Triangle() {
+
+	}
 	Triangle(int i0, int j0, int i1, int j1, int i2, int j2) {
 		i[0] = i0;
 		i[1] = i1;
@@ -90,19 +93,17 @@ public:
 		j[1] = j1;
 		j[2] = j2;
 	}
-private:
 	int *i = new int[3];
 	int *j = new int[3];
 	Triple n;
 	RGB *rgb = new RGB[3];
-	Color color;
+	RGB color;
 };
-*/
 
 class Triple {
 public:
 	Triple() {
-		x = y = z = 0;
+		//x = y = z = 0;
 	}
 	Triple(double a, double b, double c) {
 		x = a;

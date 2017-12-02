@@ -14,6 +14,7 @@
 using namespace std;
 
 FractalTerrain *terrain;
+Triangle *triangles;
 
 void terrainGen() {
 	double exaggeration = .7;
@@ -36,6 +37,62 @@ void terrainGen() {
 			colors[i][j] = (*terrain).getColor(x, z);
 		}
 	}
+	/*
+	Creating array of Triangles
+	*/
+	int numTriangles = (steps * steps * 2);
+	triangles = new Triangle[numTriangles];
+
+	int triangle = 0;
+	for (int i = 0; i < steps; ++i) {
+		for (int j = 0; j < steps; ++j) {
+			triangles[triangle++] = Triangle(i, j, i + 1, j, i, j + 1);
+			triangles[triangle++] = Triangle(i + 1, j, i + 1, j + 1, i, j + 1);
+		}
+	}
+	double ambient = .3;
+	double diffuse = 4.0;
+	Triple **normals = new Triple*[steps + 1];
+	for (int i = 0; i < steps + 1; i++) {
+		normals[i] = new Triple[steps + 1];
+	}
+	Triple sun = Triple(3.6, 3.9, 0.6);
+
+	for (int i = 0; i < numTriangles; ++i)
+		for (int j = 0; j < 3; ++j)
+			normals[i][j] = Triple(0.0, 0.0, 0.0);
+	/* compute triangle normals and vertex averaged normals */
+	for (int i = 0; i < numTriangles; ++i) {
+		Triple v0 = map[triangles[i].i[0]][triangles[i].j[0]],
+			v1 = map[triangles[i].i[1]][triangles[i].j[1]],
+			v2 = map[triangles[i].i[2]][triangles[i].j[2]];
+		Triple normal = v0.subtract(v1).cross(v2.subtract(v1)).normalize();
+		triangles[i].n = normal;
+		for (int j = 0; j < 3; ++j) {
+			normals[triangles[i].i[j]][triangles[i].j[j]] =
+				normals[triangles[i].i[j]][triangles[i].j[j]].add(normal);
+		}
+	}
+	/* compute vertex colors and triangle average colors */
+	for (int i = 0; i < numTriangles; ++i) {
+		RGB avg = RGB(0.0, 0.0, 0.0);
+		for (int j = 0; j < 3; ++j) {
+			int k = triangles[i].i[j], l = triangles[i].j[j];
+			Triple vertex = map[k][l];
+			RGB color = colors[k][l];
+			Triple normal = normals[k][l].normalize();
+			Triple light = vertex.subtract(sun);
+			double distance2 = light.length2();
+			double dot = light.normalize().dot(normal);
+			double lighting = ambient + diffuse * ((dot < 0.0) ? -dot : 0.0) / distance2;
+			color = color.scale(lighting);
+			triangles[i].color[j] = color;
+			avg = avg.add(color);
+		}
+		triangles[i].color = new RGB(avg.scale(1.0 / 3.0).toRGB());
+	}
+
+
 }
 
 void display() {
