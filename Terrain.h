@@ -1,8 +1,50 @@
+#ifndef __TERRAIN_H__
+#define __TERRAIN_H__
 #include <vector>
 #include <cstdlib>
 #include <time.h>
 #include <math.h>
 using namespace std;
+class Triple {
+public:
+	Triple() {
+		//x = y = z = 0;
+	}
+	Triple(double a, double b, double c) {
+		x = a;
+		y = b;
+		z = c;
+	}
+	Triple add(Triple t) {
+		return Triple(x + t.x, y + t.y, z + t.z);
+	}
+	Triple subtract(Triple t) {
+		return Triple(x - t.x, y - t.y, z - t.z);
+	}
+
+	Triple cross(Triple t) {
+		return Triple(y * t.z - z * t.y, z * t.x - x * t.z,
+			x * t.y - y * t.x);
+	}
+
+	double dot(Triple t) {
+		return x * t.x + y * t.y + z * t.z;
+	}
+
+	double length2() {
+		return dot(*this);
+	}
+
+	Triple normalize() {
+		return scale(1.0 / sqrt(length2()));
+	}
+
+	Triple scale(double scale) {
+		return Triple(x * scale, y * scale, z * scale);
+	}
+	double x, y, z;
+};
+
 class RGB {
 public:
 	RGB() {
@@ -95,48 +137,8 @@ public:
 	}
 	int *i = new int[3];
 	int *j = new int[3];
-	Triple n;
+	Triple normal = Triple();
 	RGB *rgb = new RGB[3];
 	RGB color;
 };
-
-class Triple {
-public:
-	Triple() {
-		//x = y = z = 0;
-	}
-	Triple(double a, double b, double c) {
-		x = a;
-		y = b;
-		z = c;
-	}
-	Triple add(Triple t) {
-		return Triple(x + t.x, y + t.y, z + t.z);
-	}
-	Triple subtract(Triple t) {
-		return Triple(x - t.x, y - t.y, z - t.z);
-	}
-
-	Triple cross(Triple t) {
-		return Triple(y * t.z - z * t.y, z * t.x - x * t.z,
-			x * t.y - y * t.x);
-	}
-
-	double dot(Triple t) {
-		return x * t.x + y * t.y + z * t.z;
-	}
-
-	double length2() {
-		return dot(*this);
-	}
-
-	Triple normalize() {
-		return scale(1.0 / sqrt(length2()));
-	}
-
-	Triple scale(double scale) {
-		return Triple(x * scale, y * scale, z * scale);
-	}
-private:
-	double x, y, z;
-};
+#endif
