@@ -1,5 +1,5 @@
+#include "Terrain.h"
 #ifdef _WIN32
-#include <iostream>
 #include <GLUT/GLUT.H>
 #elif __APPLE__
 #include <OpenGL/gl.h>
@@ -10,8 +10,6 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #endif
-#include "Terrain.h"
-using namespace std;
 
 FractalTerrain *terrain;
 Triangle *triangles;
@@ -38,6 +36,40 @@ void terrainGen() {
 		}
 	}
 	/*
+	Shading
+	*/
+	double ambient = .3;
+	double diffuse = 4.0;
+	Triple **normals = new Triple*[steps + 1];
+	for (int i = 0; i < steps + 1; i++) {
+		normals[i] = new Triple[steps + 1];
+	}
+	Triple sun = Triple(3.6, 3.9, 0.6);
+	double **shade = new double*[steps + 1];
+	for (int i = 0; i < steps + 1; i++) {
+		shade[i] = new double[steps + 1];
+	}
+	for (int i = 0; i <= steps; ++i) {
+		for (int j = 0; j <= steps; ++j) {
+			shade[i][j] = 1.0;
+			Triple vertex = map[i][j];
+			Triple ray = sun.subtract(vertex);
+			double distance = steps * sqrt(ray.x * ray.x + ray.z * ray.z);
+			/* step along ray in horizontal units of grid width */
+			for (double place = 1.0; place < distance; place += 1.0) {
+				Triple sample = vertex.add(ray.scale(place / distance));
+				double sx = sample.x, sy = sample.y, sz = sample.z;
+				if ((sx < 0.0) || (sx > 1.0) || (sz < 0.0) || (sz > 1.0))
+					break; /* steppd off terrain */
+				double ground = exaggeration * (*terrain).getAltitude(sx, sz);
+				if (ground >= sy) {
+					shade[i][j] = 0.0;
+					break;
+				}
+			}
+		}
+	}
+	/*
 	Creating array of Triangles
 	*/
 	int numTriangles = (steps * steps * 2);
@@ -50,13 +82,6 @@ void terrainGen() {
 			triangles[triangle++] = Triangle(i + 1, j, i + 1, j + 1, i, j + 1);
 		}
 	}
-	double ambient = .3;
-	double diffuse = 4.0;
-	Triple **normals = new Triple*[steps + 1];
-	for (int i = 0; i < steps + 1; i++) {
-		normals[i] = new Triple[steps + 1];
-	}
-	Triple sun = Triple(3.6, 3.9, 0.6);
 
 	for (int i = 0; i < numTriangles; ++i)
 		for (int j = 0; j < 3; ++j)
@@ -67,7 +92,7 @@ void terrainGen() {
 			v1 = map[triangles[i].i[1]][triangles[i].j[1]],
 			v2 = map[triangles[i].i[2]][triangles[i].j[2]];
 		Triple normal = v0.subtract(v1).cross(v2.subtract(v1)).normalize();
-		triangles[i].n = normal;
+		triangles[i].normal = normal;
 		for (int j = 0; j < 3; ++j) {
 			normals[triangles[i].i[j]][triangles[i].j[j]] =
 				normals[triangles[i].i[j]][triangles[i].j[j]].add(normal);
@@ -84,15 +109,15 @@ void terrainGen() {
 			Triple light = vertex.subtract(sun);
 			double distance2 = light.length2();
 			double dot = light.normalize().dot(normal);
-			double lighting = ambient + diffuse * ((dot < 0.0) ? -dot : 0.0) / distance2;
+			double shadow = shade[k][l];
+			double lighting = ambient + diffuse * ((dot < 0.0) ? -dot : 0.0) /
+				distance2 * shadow;
 			color = color.scale(lighting);
-			triangles[i].color[j] = color;
+			//triangles[i].color[j] = color;
 			avg = avg.add(color);
 		}
-		triangles[i].color = new RGB(avg.scale(1.0 / 3.0).toRGB());
+		triangles[i].color = RGB(avg.scale(1.0 / 3.0));
 	}
-
-
 }
 
 void display() {
