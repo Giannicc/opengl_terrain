@@ -43,8 +43,8 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -5.0f);
 	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, -5.0f);
 	glColor3ub(255, 0, 0);
 	glutSolidTeapot(1.0);
 	glPopMatrix();
