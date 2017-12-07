@@ -14,20 +14,25 @@
 FractalTerrain *terrain;
 Triangle *triangles;
 double exaggeration = .7;
-int lod = 5;
+int lod = 6;
 int steps = 1 << lod;
 int numTriangles = (steps * steps * 2);
 
 void terrainGen() {
     Triple **map = new (nothrow) Triple*[steps + 1];
-    for (int i = 0; i < steps + 1; i++) {
+    if (!map) exit(-1);
+    for (int i = 0; i <= steps; i++) {
 	map[i] = new (nothrow) Triple[steps + 1];
+	if (!map[i]) exit(-1);
     }
     RGB **colors = new (nothrow) RGB*[steps + 1];
-    for (int i = 0; i < steps + 1; i++) {
+    if (!colors) exit(-1);
+    for (int i = 0; i <= steps; i++) {
 	colors[i] = new (nothrow) RGB[steps + 1];
+	if(!colors[i]) exit(-1);
     }
     terrain = new (nothrow) FractalTerrain(lod, .5);
+    if (!terrain) exit(-1);
     for (int i = 0; i <= steps; i++) {
 	for (int j = 0; j <= steps; j++) {
 	    double x = 1.0 * i / steps, z = 1.0 * j / steps;
@@ -103,7 +108,7 @@ void terrainGen() {
     /* compute vertex colors and triangle average colors */
     for (int i = 0; i < numTriangles; i++) {
 	RGB avg = RGB(0.0, 0.0, 0.0);
-	for (int j = 0; j < 3; ++j) {
+	for (int j = 0; j < 3; j++) {
 	    int k = triangles[i].i[j], l = triangles[i].j[j];
 	    Triple vertex = map[k][l];
 	    RGB color = colors[k][l];
@@ -146,7 +151,7 @@ void display() {
     glTranslatef(0.0f, 0.0f, -5.0f);
     //glColor3ub(255, 0, 0);
     //glutSolidTeapot(1.0);
-    drawTerrain();
+    //drawTerrain();
     glPopMatrix();
     glutSwapBuffers();
 }
@@ -179,7 +184,6 @@ void callbacks() {
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
     glEnable(GL_DEPTH_TEST);
-    //Now enable some lighting stuff...
     terrainGen();
 }
 

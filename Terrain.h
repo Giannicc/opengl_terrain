@@ -63,7 +63,7 @@ public:
 	if (newR < 0) newR = 0;
 	if (newG < 0) newG = 0;
 	if (newB < 0) newB = 0;
-	RGB *newRGB = new RGB(newR, newG, newB);
+	RGB *newRGB = new (nothrow) RGB(newR, newG, newB);
 	return *newRGB;
     }
     RGB subtract(RGB rgb) {
@@ -77,7 +77,7 @@ public:
 	if (newR < 0) newR = 0;
 	if (newG < 0) newG = 0;
 	if (newB < 0) newB = 0;
-	RGB *newRGB = new RGB(newR, newG, newB);
+	RGB *newRGB = new (nothrow) RGB(newR, newG, newB);
 	return *newRGB;
     }
     RGB scale(double scale) {
@@ -91,7 +91,7 @@ public:
 	if (newR < 0) newR = 0;
 	if (newG < 0) newG = 0;
 	if (newB < 0) newB = 0;
-	RGB *newRGB = new RGB(newR, newG, newB);
+	RGB *newRGB = new (nothrow) RGB(newR, newG, newB);
 	return *newRGB;
     }
     double r, g, b;
