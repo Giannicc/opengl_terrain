@@ -13,15 +13,15 @@
 #endif
 
 FractalTerrain *terrain;
-Triangle *triangles;
-double exaggeration = .7;
+vector<Triangle> triangles;
+vector<vector<Triple>> map;
+vector<vector<RGB>> colors;
+double exaggeration = 20;
 int lod = 6;
 int steps = 1 << lod;
 int numTriangles = (steps * steps * 2);
 
 void terrainGen() {
-	vector<vector<Triple>> map;
-	vector<vector<RGB>> colors;
 	terrain = new (nothrow) FractalTerrain(lod, 0.5);
 	for (int i = 0; i < steps + 1; i++) {
 		vector<Triple> newTrip;
@@ -79,20 +79,23 @@ void terrainGen() {
     /*
       Creating array of Triangles
     */
-
-    triangles = new (nothrow) Triangle[numTriangles];
+   	for (int i = 0; i < numTriangles; i++) {
+		triangles.push_back(Triangle());
+	}
 
     int triangle = 0;
-    for (int i = 0; i < steps; i++) {
+	for (int i = 0; i < steps; i++) {
 		for (int j = 0; j < steps; j++) {
 			triangles[triangle++] = Triangle(i, j, i + 1, j, i, j + 1);
 			triangles[triangle++] = Triangle(i + 1, j, i + 1, j + 1, i, j + 1);
 		}
-    }
-
-    for (int i = 0; i < numTriangles; i++)
+	}
+	/*
+	for (int i = 0; i < numTriangles; i++)
 	for (int j = 0; j < 3; ++j)
 	    normals[i][j] = Triple(0.0, 0.0, 0.0);
+		*/
+	/*
     // compute triangle normals and vertex averaged normals 
     for (int i = 0; i < numTriangles; i++) {
 	if (i > 32) i = 0;
@@ -106,7 +109,6 @@ void terrainGen() {
 		normals[triangles[i].i[j]][triangles[i].j[j]].add(normal);
 	}
     }
-    /* compute vertex colors and triangle average colors */
     for (int i = 0; i < numTriangles; i++) {
 	RGB avg = RGB(0.0, 0.0, 0.0);
 	for (int j = 0; j < 3; j++) {
@@ -126,21 +128,21 @@ void terrainGen() {
 	}
 	triangles[i].color = RGB(avg.scale(1.0 / 3.0));
     }
+	*/
 }
 
 void drawTerrain() {
-    for (int i = 0; i < numTriangles; i++) {
-	glBegin(GL_TRIANGLES);
-	for (int t = 0; t < 3; t++) {
-	    double x, y, z;
-	    x = triangles[i].i[t];
-	    z = triangles[i].j[t];
-	    y = (*terrain).getAltitude(x, z);
-	    glColor3f(triangles[i].color.r, triangles[i].color.g, triangles[i].color.b);
-	    glVertex3f(x, y, z);
+	
+	for (int i = 0; i < steps; i++) {
+		for (int j = 0; j < steps; j++) {
+			glBegin(GL_TRIANGLES);
+			glColor3f(0.0, 0.7, 0.3);
+			glVertex3f(i, map[i][j].y, j);
+			glVertex3f(i + 1, map[i + 1][j].y, j);
+			glVertex3f(i, map[i][j + 1].y, j + 1);
+			glEnd();
+		}
 	}
-	glEnd();
-    }
 }
 
 void display() {
@@ -149,10 +151,10 @@ void display() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glPushMatrix();
-    glTranslatef(0.0f, 0.0f, -5.0f);
+    glTranslatef(0.0f, 0.0f, -50.0f);
     //glColor3ub(255, 0, 0);
     //glutSolidTeapot(1.0);
-    //drawTerrain();
+    drawTerrain();
     glPopMatrix();
     glutSwapBuffers();
 }
