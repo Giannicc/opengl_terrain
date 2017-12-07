@@ -1,4 +1,5 @@
 #include "Terrain.h"
+#include <stdlib.h>
 #ifdef _WIN32
 #include <GLUT/GLUT.H>
 #elif __APPLE__
@@ -19,28 +20,28 @@ int steps = 1 << lod;
 int numTriangles = (steps * steps * 2);
 
 void terrainGen() {
-    Triple **map = new (nothrow) Triple*[steps + 1];
-    if (!map) exit(-1);
-    for (int i = 0; i <= steps; i++) {
-	map[i] = new (nothrow) Triple[steps + 1];
-	if (!map[i]) exit(-1);
-    }
-    RGB **colors = new (nothrow) RGB*[steps + 1];
-    if (!colors) exit(-1);
-    for (int i = 0; i <= steps; i++) {
-	colors[i] = new (nothrow) RGB[steps + 1];
-	if(!colors[i]) exit(-1);
-    }
-    terrain = new (nothrow) FractalTerrain(lod, .5);
-    if (!terrain) exit(-1);
-    for (int i = 0; i <= steps; i++) {
-	for (int j = 0; j <= steps; j++) {
-	    double x = 1.0 * i / steps, z = 1.0 * j / steps;
-	    double altitude = (*terrain).getAltitude(x, z);
-	    map[i][j] = Triple(x, altitude * exaggeration, z);
-	    colors[i][j] = (*terrain).getColor(x, z);
+	vector<vector<Triple>> map;
+	vector<vector<RGB>> colors;
+	terrain = new (nothrow) FractalTerrain(lod, 0.5);
+	for (int i = 0; i < steps + 1; i++) {
+		vector<Triple> newTrip;
+		map.push_back(newTrip);
+		vector<RGB> newColorVec;
+		colors.push_back(newColorVec);
+		for (int j = 0; j < steps + 1; j++) {
+			map[i].push_back(Triple());
+			colors[i].push_back(RGB());
+		}
 	}
-    }
+	for (int i = 0; i <= steps; ++i) {
+		for (int j = 0; j <= steps; ++j) {
+			double x = 1.0 * i / steps, z = 1.0 * j / steps;
+			double altitude = (*terrain).getAltitude(x, z);
+			map[i][j] = Triple(x, altitude * exaggeration, z);
+			colors[i][j] = (*terrain).getColor(x, z);
+		}
+	}
+
     /*
       Shading
     */
@@ -83,10 +84,10 @@ void terrainGen() {
 
     int triangle = 0;
     for (int i = 0; i < steps; i++) {
-	for (int j = 0; j < steps; j++) {
-	    triangles[triangle++] = Triangle(i, j, i + 1, j, i, j + 1);
-	    triangles[triangle++] = Triangle(i + 1, j, i + 1, j + 1, i, j + 1);
-	}
+		for (int j = 0; j < steps; j++) {
+			triangles[triangle++] = Triangle(i, j, i + 1, j, i, j + 1);
+			triangles[triangle++] = Triangle(i + 1, j, i + 1, j + 1, i, j + 1);
+		}
     }
 
     for (int i = 0; i < numTriangles; i++)
