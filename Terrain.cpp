@@ -1,20 +1,20 @@
 #include "Terrain.h"
-#include <iostream>
-using namespace std;
-
 FractalTerrain::FractalTerrain(int lod, double rough) {
     srand(time(NULL));
-    terrain = new (nothrow) double*[divisions + 1];
-    for (int i = 0; i < divisions + 1; i++) {
-	terrain[i] = new (nothrow) double[divisions + 1];
-    }
+	divisions = 1 << lod;
+	for (int i = 0; i < divisions + 1; i++) {
+		vector<double> newVec;
+		terrain.push_back(newVec);
+		for (int j = 0; j < divisions + 1; j++) {
+			terrain[i].push_back(0.0);
+		}
+	}
     roughness = rough;
     terrain[0][0] = rnd();
     terrain[0][divisions] = rnd();
     terrain[divisions][divisions] = rnd();
     terrain[divisions][0] = rnd();
-    for (int i = 0; i < lod; i++) {
-	cout << i << endl;
+    for (int i = 0; i < lod; ++i) {
 	int q = 1 << i, r = 1 << (lod - i), s = r >> 1;
 	for (int j = 0; j < divisions; j += r)
 	    for (int k = 0; k < divisions; k += r)
@@ -26,17 +26,10 @@ FractalTerrain::FractalTerrain(int lod, double rough) {
 	rough *= roughness;
     }
     min = max = terrain[0][0];
-    for (int i = 0; i <= divisions; i++)
-	for (int j = 0; j <= divisions; j)
+    for (int i = 0; i <= divisions; ++i)
+	for (int j = 0; j <= divisions; ++j)
 	    if (terrain[i][j] < min) min = terrain[i][j];
 	    else if (terrain[i][j] > max) max = terrain[i][j];
-}
-
-FractalTerrain::~FractalTerrain() {
-    for (int i = 0; i < divisions + 1; i++) {
-	delete[] terrain[i];
-    }
-    delete[] terrain;
 }
 
 void FractalTerrain::diamond(int x, int y, int side, double scale) {

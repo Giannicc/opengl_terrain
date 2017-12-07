@@ -8,7 +8,7 @@ using namespace std;
 class Triple {
 public:
     Triple() {
-	//x = y = z = 0;
+		x = y = z = 0;
     }
     Triple(double a, double b, double c) {
 	x = a;
@@ -106,8 +106,7 @@ public:
 class FractalTerrain :Terrain {
 public:
     FractalTerrain(int lod, double roughness);
-    ~FractalTerrain();
-    double **terrain;
+    vector<vector<double>> terrain;
     double rnd();
     double getAltitude(double i, double j);
     RGB getColor(double i, double j);
