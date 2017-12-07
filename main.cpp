@@ -81,7 +81,7 @@ void terrainGen() {
     }
     /*
       Creating array of Triangles
-    */
+    
    	for (int i = 0; i < numTriangles; i++) {
 		triangles.push_back(Triangle());
 	}
@@ -145,6 +145,16 @@ void drawTerrain() {
 			glEnd();
 		}
 	}
+	for (int i = 1; i < steps; i++) {
+		for (int j = 0; j < steps; j++) {
+			glBegin(GL_TRIANGLES);
+			glColor3f(0.5, 0.0, 0.5);
+			glVertex3f(i, map[i][j].y, j);
+			glVertex3f(i - 1, map[i - 1][j + 1].y, j + 1);
+			glVertex3f(i, map[i][j + 1].y, j + 1);
+			glEnd();
+		}
+	}
 }
 
 void drawPalmTree() {
@@ -158,13 +168,15 @@ void display() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glPushMatrix();
-    glTranslatef(-(steps / 2), -exaggeration, - (steps));
+	glTranslatef(0, -exaggeration + map[steps / 2][steps / 2].y + 5, - (steps/2));
+	glColor3f(1.0, 1.0, 1.0);
+	drawPalmTree();
+	glPopMatrix();
+	glPushMatrix();
+    glTranslatef(-(steps / 2), -exaggeration, - (steps) - 10);
     //glColor3ub(255, 0, 0);
     //glutSolidTeapot(1.0);
     drawTerrain();
-	glTranslatef(steps/2, map[steps/2][steps/2].y + 10, steps/2);
-	glColor3f(1.0, 1.0, 1.0);
-	drawPalmTree();
 	glPopMatrix();
     glutSwapBuffers();
 }
