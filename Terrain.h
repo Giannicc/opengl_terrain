@@ -48,7 +48,7 @@ public:
 class RGB {
 public:
     RGB() {
-	//r = g = b = 0;
+	r = g = b = 0;
     }
     RGB(double _r, double _g, double _b) {
 	r = _r;
@@ -124,20 +124,38 @@ private:
 class Triangle {
 public:
     Triangle() {
-
+		for (int count = 0; count < 3; count++) {
+			i.push_back(0);
+			j.push_back(0);
+		}
+		normal = Triple();
+		for (int count = 0; count < 3; count++) {
+			rgb.push_back(RGB(0, 0, 0));
+		}
     }
     Triangle(int i0, int j0, int i1, int j1, int i2, int j2) {
-	i[0] = i0;
-	i[1] = i1;
-	i[2] = i2;
-	j[0] = j0;
-	j[1] = j1;
-	j[2] = j2;
+		for (int count = 0; count < 3; count++) {
+			i.push_back(0);
+			j.push_back(0);
+		}
+		i[0] = i0;
+		i[1] = i1;
+		i[2] = i2;
+		j[0] = j0;
+		j[1] = j1;
+		j[2] = j2;
     }
-    int *i = new (nothrow) int[3];
-    int *j = new (nothrow) int[3];
-    Triple normal = Triple();
-    RGB *rgb = new (nothrow) RGB[3];
+	Triangle operator=(const Triangle& t) {
+		Triangle triangle;
+		triangle.color = t.color;
+		triangle.i = t.i;
+		triangle.normal = t.normal;
+		triangle.rgb = t.rgb;
+		return *this;
+	}
+    vector<int> i, j;
+    Triple normal;
+    vector<RGB> rgb;
     RGB color;
 };
 #endif
