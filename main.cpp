@@ -1,4 +1,5 @@
 #include "Terrain.h"
+#include "ReadObj.h"
 #include <stdlib.h>
 #ifdef _WIN32
 #include <GLUT/GLUT.H>
@@ -16,7 +17,9 @@ FractalTerrain *terrain;
 vector<Triangle> triangles;
 vector<vector<Triple>> map;
 vector<vector<RGB>> colors;
-double exaggeration = 20;
+Model *palmTree;
+Model *palmLeaves;
+double exaggeration = 50;
 int lod = 6;
 int steps = 1 << lod;
 int numTriangles = (steps * steps * 2);
@@ -132,7 +135,6 @@ void terrainGen() {
 }
 
 void drawTerrain() {
-	
 	for (int i = 0; i < steps; i++) {
 		for (int j = 0; j < steps; j++) {
 			glBegin(GL_TRIANGLES);
@@ -145,17 +147,25 @@ void drawTerrain() {
 	}
 }
 
+void drawPalmTree() {
+	(*palmTree).drawTextured();
+	(*palmLeaves).drawTextured();
+}
+
 void display() {
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glPushMatrix();
-    glTranslatef(0.0f, 0.0f, -50.0f);
+    glTranslatef(-(steps / 2), -exaggeration, - (steps));
     //glColor3ub(255, 0, 0);
     //glutSolidTeapot(1.0);
     drawTerrain();
-    glPopMatrix();
+	glTranslatef(steps/2, map[steps/2][steps/2].y + 10, 0);
+	glColor3f(1.0, 1.0, 1.0);
+	drawPalmTree();
+	glPopMatrix();
     glutSwapBuffers();
 }
 
@@ -182,6 +192,11 @@ void keyboard(unsigned char key, int x, int y) {
 }
 
 void callbacks() {
+	Model *tree = new Model("palm_tree.obj", 0, 0, 0, {}, "trunk_texture.jpg");
+	Model *leaves = new Model("palm_leaves.obj", 0, 0, 0, {}, "leaf.png");
+	palmTree = tree;
+	palmLeaves = leaves;
+
     glutDisplayFunc(display);
     glutIdleFunc(display);
     glutReshapeFunc(reshape);
