@@ -1,4 +1,7 @@
 #include "Terrain.h"
+#include <iostream>
+using namespace std;
+
 FractalTerrain::FractalTerrain(int lod, double rough) {
     srand(time(NULL));
     terrain = new (nothrow) double*[divisions + 1];
@@ -10,7 +13,8 @@ FractalTerrain::FractalTerrain(int lod, double rough) {
     terrain[0][divisions] = rnd();
     terrain[divisions][divisions] = rnd();
     terrain[divisions][0] = rnd();
-    for (int i = 0; i < lod; ++i) {
+    for (int i = 0; i < lod; i++) {
+	cout << i << endl;
 	int q = 1 << i, r = 1 << (lod - i), s = r >> 1;
 	for (int j = 0; j < divisions; j += r)
 	    for (int k = 0; k < divisions; k += r)
@@ -22,8 +26,8 @@ FractalTerrain::FractalTerrain(int lod, double rough) {
 	rough *= roughness;
     }
     min = max = terrain[0][0];
-    for (int i = 0; i <= divisions; ++i)
-	for (int j = 0; j <= divisions; ++j)
+    for (int i = 0; i <= divisions; i++)
+	for (int j = 0; j <= divisions; j)
 	    if (terrain[i][j] < min) min = terrain[i][j];
 	    else if (terrain[i][j] > max) max = terrain[i][j];
 }
