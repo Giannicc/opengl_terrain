@@ -162,7 +162,7 @@ void display() {
     //glColor3ub(255, 0, 0);
     //glutSolidTeapot(1.0);
     drawTerrain();
-	glTranslatef(steps/2, map[steps/2][steps/2].y + 10, 0);
+	glTranslatef(steps/2, map[steps/2][steps/2].y + 10, steps/2);
 	glColor3f(1.0, 1.0, 1.0);
 	drawPalmTree();
 	glPopMatrix();
