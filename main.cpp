@@ -19,7 +19,7 @@ vector<vector<Triple>> map;
 vector<vector<RGB>> colors;
 Model *palmTree;
 Model *palmLeaves;
-double exaggeration = 80;
+double exaggeration = 120;
 int lod = 6;
 int steps = 1 << lod;
 int numTriangles = (steps * steps * 2);
@@ -47,13 +47,6 @@ void terrainGen() {
 	for (int i = 0; i < numTriangles; i++) {
 		triangles.push_back(Triangle());
 	}
-	int triangle = 0;
-	for (int i = 0; i < steps; ++i) {
-		for (int j = 0; j < steps; ++j) {
-			triangles[triangle++] = Triangle(i, j, i + 1, j, i, j + 1);
-			triangles[triangle++] = Triangle(i + 1, j, i + 1, j + 1, i, j + 1);
-		}
-	}
 
 	double ambient = .3;
 	double diffuse = 4.0;
@@ -66,8 +59,45 @@ void terrainGen() {
 			normals[i].push_back(newTrip);
 		}
 	}
-	Triple sun (3.6, 3.9, 0.6);
+	Triple sun(3.6, 3.9, 0.6);
 
+	vector<vector<double>> shade;
+	for (int i = 0; i < steps + 1; i++) {
+		vector<double> newVec;
+		shade.push_back(newVec);
+		for (int j = 0; j < steps + 1; j++) {
+			double dubs = 0;
+			shade[i].push_back(dubs);
+		}
+	}
+	for (int i = 0; i <= steps; ++i) {
+		for (int j = 0; j <= steps; ++j) {
+			shade[i][j] = 1.0;
+			Triple vertex = map[i][j];
+			Triple ray = sun.subtract(vertex);
+			double distance = steps * sqrt(ray.x * ray.x + ray.z * ray.z);
+			/* step along ray in horizontal units of grid width */
+			for (double place = 1.0; place < distance; place += 1.0) {
+				Triple sample = vertex.add(ray.scale(place / distance));
+					double sx = sample.x, sy = sample.y, sz = sample.z;
+					if ((sx < 0.0) || (sx > 1.0) || (sz < 0.0) || (sz > 1.0))
+						break; /* steppd off terrain */
+					double ground = exaggeration * (*terrain).getAltitude(sx, sz);
+					if (ground >= sy) {
+						shade[i][j] = 0.0;
+							break;
+					}
+			}
+		}
+	}
+
+	int triangle = 0;
+	for (int i = 0; i < steps; ++i) {
+		for (int j = 0; j < steps; ++j) {
+			triangles[triangle++] = Triangle(i, j, i + 1, j, i, j + 1);
+			triangles[triangle++] = Triangle(i + 1, j, i + 1, j + 1, i, j + 1);
+		}
+	}
 	
 	/* compute triangle normals and vertex averaged normals */
 	for (int i = 0; i < numTriangles; ++i) {
@@ -92,7 +122,9 @@ void terrainGen() {
 			Triple light = vertex.subtract(sun);
 			double distance2 = light.length2();
 			double dot = light.normalize().dot(normal);
-			double lighting = ambient + diffuse * ((dot < 0.0) ? -dot : 0.0) / distance2;
+			double shadow = shade[k][l];
+			double lighting = ambient + diffuse * ((dot < 0.0) ? -dot : 0.0) /
+				distance2 * shadow;
 			color = color.scale(lighting);
 			triangles[i].color = color;
 			avg = avg.add(color);
@@ -139,12 +171,12 @@ void drawPalmTree() {
 }
 
 void display() {
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glPushMatrix();
-	glTranslatef(0, -exaggeration + map[steps / 2][steps / 2].y + 5, - (steps/2));
+	glTranslatef(0, -exaggeration + map[steps / 2][steps / 2].y + 5, - (steps) - 10);
 	glColor3f(1.0, 1.0, 1.0);
 	drawPalmTree();
 	glPopMatrix();
